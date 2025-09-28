@@ -71,3 +71,14 @@ export const getStudentByEmail = async (req, res) => {
 };
 
 
+// recupérer le nombre des students
+export const getStudentsNumber = async (req, res) => {
+  try {
+    const rows = await service.getStudentsNumber();
+    res.json(rows[0]); 
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

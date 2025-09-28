@@ -60,4 +60,11 @@ export const getStudentByEmail = async (email: string): Promise<Student> => {
 };
 
 
-//changer 
+//changer
+export const getStudentsNumber = async () => {
+
+  // const url = email ? `API_URL/users?email=${email}` : "API_URL/users";
+  const res = await fetch(`${API_URL}/students/students/studentsNumber`);
+  if (!res.ok) throw new Error("Erreur lors de la récupération des students");
+  return await res.json();
+};

@@ -197,7 +197,9 @@ export const getCompanieMailC = async (req, res) => {
 export const getUsersNumber = async (req, res) => {
   try {
     const rows = await service.getUsersNumber();
-    res.json(rows[0]);
+    const number = rows[0].usersNumber; 
+    res.json(number - 1); 
+    
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Erreur serveur" });
@@ -222,3 +224,6 @@ export const changePassword = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+
+

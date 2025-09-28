@@ -40,3 +40,13 @@ export async function getStudentByEmail(email) {
 }
 
 
+export const getStudentsNumber = async() =>
+{
+  
+    const [res] = await pool.query(
+      "select count (*)  as studentsNumber from students "
+    );
+    return res  ;
+  
+
+};

@@ -86,3 +86,14 @@ export const getCompanyByEmail = async (email: string): Promise<any> => {
 
   return res.json();
 };
+
+
+
+// get nombre de companies
+export const getCompaniesNumber = async () => {
+
+  // const url = email ? `API_URL/users?email=${email}` : "API_URL/users";
+  const res = await fetch(`${API_URL}/companies/companies/companiesNumber`);
+  if (!res.ok) throw new Error("Erreur lors de la récupération des companies");
+  return await res.json();
+};

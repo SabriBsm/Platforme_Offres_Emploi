@@ -175,3 +175,10 @@ export const getOffersByCompany = async (companyId: number) => {
   if (!res.ok) throw new Error("Erreur lors du chargement des offres");
   return res.json();
 };
+
+
+export const getOffersByTypeAndYear = async (year: number) => {
+  const res = await fetch(`${API_URL}/offers/alloffers/bytype?year=${year}`);
+  if (!res.ok) throw new Error("Erreur lors de la récupération des offres");
+  return await res.json(); // [{ type: "Stage", count: 10 }, { type: "Emploi", count: 5 }]
+};

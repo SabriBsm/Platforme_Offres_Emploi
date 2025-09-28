@@ -82,3 +82,15 @@ export const getCompanyByEmail = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// recupérer le nombre des users
+export const getCompaniesNumber = async (req, res) => {
+  try {
+    const rows = await service.getCompaniesNumber();
+    res.json(rows[0]); 
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

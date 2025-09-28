@@ -45,12 +45,15 @@ export const getUsersNumber = async() =>
 {
   
     const [res] = await pool.query(
-      "select count (*) as usersNumber from users "
+      "select count (*)  as usersNumber from users "
     );
-    return res ;
+    return res  ;
   
 
 };
+
+
+
 
 
 export const changeStudentPassword = async (id, oldPassword, newPassword) => {

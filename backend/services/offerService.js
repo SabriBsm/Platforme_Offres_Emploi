@@ -108,4 +108,14 @@ export const getOffersByCompany = async (companyId) => {
   return rows;
 };
 
+ export const fetchOffersByTypeAndYear = async (year) => {
+  const [rows] = await pool.query(
+    `SELECT type, COUNT(*) AS count
+     FROM offers
+     WHERE YEAR(updated_at) = ?
+     GROUP BY type`,
+    [year]
+  );
+  return rows; // [{ type: "Stage", count: 10 }, { type: "Emploi", count: 5 }]
+};
 

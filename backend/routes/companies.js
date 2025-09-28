@@ -1,5 +1,5 @@
 import express from "express";
-import {getAllCompanies, getCompanie, updateCompanie, deleteCompanie, getDashboardStats, getCompanyByEmail} from "../controllers/companieController.js";
+import {getAllCompanies, getCompanie, updateCompanie, deleteCompanie, getDashboardStats, getCompanyByEmail, getCompaniesNumber} from "../controllers/companieController.js";
 const router = express.Router();
 
 // GET - liste des companies
@@ -18,4 +18,6 @@ router.get("/:id/dashboard", getDashboardStats);
 
 //get company by email
 router.get("/email",getCompanyByEmail );
+
+router.get("/companies/companiesNumber",getCompaniesNumber );
 export default router;

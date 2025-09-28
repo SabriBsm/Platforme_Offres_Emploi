@@ -1,6 +1,6 @@
 import express from "express";
 
-import {getAllOffers , createOffer, updateOffer, deleteOffer, getoffersNumber, getOfferById, getCompanyOffers } from "../controllers/offerController.js";
+import {getAllOffers , createOffer, updateOffer, deleteOffer, getoffersNumber, getOfferById, getCompanyOffers, getOffersByTypeAndYear } from "../controllers/offerController.js";
 
 
 const router = express.Router();
@@ -26,4 +26,9 @@ router.get("/:id", getOfferById);
 
 //get offers by company id
 router.get("/company/:companyId", getCompanyOffers);
+
+//get offer by type and year
+router.get("/alloffers/bytype", getOffersByTypeAndYear);
+
+
 export default router;

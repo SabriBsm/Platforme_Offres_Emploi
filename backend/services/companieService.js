@@ -74,3 +74,13 @@ export async function getCompanyByEmail(email) {
   );
   return rows[0];
 }
+export const getCompaniesNumber = async() =>
+{
+  
+    const [res] = await pool.query(
+      "select count (*)  as companiesNumber from companies "
+    );
+    return res  ;
+  
+
+};

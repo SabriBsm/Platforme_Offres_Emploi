@@ -1,5 +1,5 @@
 import express from "express";
-import {getAllStudents, getStudent, updateStudent, deleteStudent , getStudentByEmail} from "../controllers/studentController.js";
+import {getAllStudents, getStudent, updateStudent, deleteStudent , getStudentByEmail, getStudentsNumber} from "../controllers/studentController.js";
 
 
 const router = express.Router();
@@ -18,6 +18,9 @@ router.delete("/:id", deleteStudent);
 
 //GET -un etudiant avec les champs de user
 router.get("/studentByEmail",getStudentByEmail );
+
+// get studentsnumber
+router.get("/students/studentsNumber",getStudentsNumber );
 
 
 

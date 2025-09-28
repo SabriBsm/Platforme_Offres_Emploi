@@ -116,3 +116,20 @@ export const getCompanyOffers = async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
+
+
+export const getOffersByTypeAndYear = async (req, res) => {
+  const year = req.query.year;
+
+  if (!year) {
+    return res.status(400).json({ message: "Année requise" });
+  }
+
+  try {
+    const data = await service.fetchOffersByTypeAndYear(year);
+    res.json(data);
+  } catch (error) {
+    console.error("Erreur dans getOffersByTypeAndYear:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
