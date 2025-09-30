@@ -86,3 +86,18 @@ export const getStudent = () => {
 export const getToken = () => {
   return localStorage.getItem("token");
 };
+
+export const forgotPassword = async (email: string) => {
+  const res = await fetch("http://localhost:3000/api/auth/forgot-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || "Erreur lors de la demande de réinitialisation");
+  }
+
+  return res.json();
+};

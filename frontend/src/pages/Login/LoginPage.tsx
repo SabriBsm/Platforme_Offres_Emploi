@@ -15,6 +15,19 @@ const LoginPage = () => {
       navigate("/dashboard");
     }
   }, [navigate]);
+  const handleForgotPassword = async () => {
+  if (!email) {
+    alert("⚠️ Veuillez entrer votre adresse email.");
+    return;
+  }
+
+  try {
+    const response = await authService.forgotPassword(email);
+    alert(`📧 ${response.message || "Lien de réinitialisation envoyé à votre email !"}`);
+  } catch (err: any) {
+    alert(`❌ ${err.message}`);
+  }
+};
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +41,24 @@ const LoginPage = () => {
     }
   };
 
+  // Fonction pour "Mot de passe oublié"
+  /*const handleForgotPassword = () => {
+    if (!email) {
+      alert("⚠️ Veuillez entrer votre adresse email.");
+      return;
+    }
+
+    // Vérifier si l'email est valide avec une regex simple
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("⚠️ Veuillez entrer une adresse email valide.");
+      return;
+    }
+
+    // Si email correct
+    alert(`📧 Un lien de réinitialisation a été envoyé à : ${email}`);
+  };*/
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200">
       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg border border-gray-300">
@@ -35,7 +66,7 @@ const LoginPage = () => {
         {/* Logo école */}
         <div className="flex justify-center mb-4">
           <img
-             src={espritLogo}
+            src={espritLogo}
             alt="Logo École"
             className="h-20"
           />
@@ -76,9 +107,13 @@ const LoginPage = () => {
 
           {/* Mot de passe oublié */}
           <div className="flex justify-end mb-6">
-            <a href="#" className="text-sm text-red-500 hover:underline">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="text-sm text-red-500 hover:underline"
+            >
               Mot de passe oublié ?
-            </a>
+            </button>
           </div>
 
           <button

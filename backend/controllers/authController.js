@@ -56,6 +56,7 @@ export async function forgotPassword(req, res) {
         const { email } = req.body;
         const message = await service.forgotPassword(email);
         res.json({ message });
+        console.log("email envoyé à {email}")
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
