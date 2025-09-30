@@ -2,6 +2,7 @@ import * as service from "../services/AuthService.js";
 import jwt from "jsonwebtoken";
 
 
+console.log("secret:", process.env.JWT_SECRET);
 /*
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -50,3 +51,23 @@ export const login = async (req, res) => {
   }
 };
 
+export async function forgotPassword(req, res) {
+    try {
+        const { email } = req.body;
+        const message = await service.forgotPassword(email);
+        res.json({ message });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+export async function resetPassword(req, res) {
+    try {
+        const { token } = req.body;
+        const { password } = req.body;
+        const message = await service.resetPassword(token, password);
+        res.json({ message });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}

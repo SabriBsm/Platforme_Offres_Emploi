@@ -1,3 +1,13 @@
+
+
+import "./services/config/env.js";
+console.log("DEBUG .env ->", {
+  api: process.env.MAILJET_API_KEY,
+  secret: process.env.MAILJET_SECRET_KEY,
+  sender: process.env.MAILJET_SENDER_EMAIL,
+});
+
+
 import studentsRouter from "./routes/students.js";
 import usersRouter from "./routes/users.js";
 import offersRouter from "./routes/offers.js";
@@ -5,8 +15,7 @@ import companiesRouter from "./routes/companies.js";
 import authRouter  from "./routes/AuthRoute.js";
 import applicationRoutes from "./routes/application.js";
 import express from 'express';
-import dotenv from "dotenv";
-dotenv.config();
+
 import fileRoutes from "./routes/files.js";
 
 

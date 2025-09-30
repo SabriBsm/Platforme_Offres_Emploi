@@ -18,6 +18,7 @@ import CompanyDashboard from "./pages/company/Dashboard";
 import Profile from "./pages/company/Profile";
 import CompanyOffers from "./pages/company/offres";
 import Applications  from "./pages/company/Applications";
+import ResetPassword from "./pages/resetPassword";
 
 const App: React.FC = () => {
   return (
@@ -52,6 +53,10 @@ const App: React.FC = () => {
         <Route path="/company/profile" element={<Profile />} />
         <Route path="/company/offers" element={< CompanyOffers />} />
         <Route path="/company/applications" element={< Applications />} />
+      
+
+
+         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
 
       </Routes>
