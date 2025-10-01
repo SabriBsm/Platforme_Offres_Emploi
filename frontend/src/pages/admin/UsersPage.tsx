@@ -139,10 +139,16 @@ const handleDelete = async (id: number) => {
       setFormData({});
       setSelectedUser(null);
       setMode("create");
-    } catch (err) {
-      console.error(err);
-      alert("Échec de l'opération");
-    }
+   } catch (err) {
+  console.error(err);
+
+  if (err instanceof Error) {
+    alert(err.message); // ✅ accès sûr
+  } else {
+    alert("Erreur inconnue");
+  }
+}
+
   };
 
   // Gestion des inputs
@@ -280,6 +286,15 @@ const handleDelete = async (id: number) => {
               <input
                 type="password"
                 name="password"
+                minLength={8}
+                onInvalid={(e) =>
+                    (e.target as HTMLInputElement).setCustomValidity(
+                      "❌ Le mot de passe doit contenir au moins 8 caractères"
+                    )
+                  }
+                  onInput={(e) =>
+                    (e.target as HTMLInputElement).setCustomValidity("")
+                  }
                 placeholder="Mot de passe"
                 value={formData.password || ""}
                 onChange={handleChange}
@@ -366,7 +381,8 @@ const handleDelete = async (id: number) => {
                     dateFormat="dd/MM/yyyy"
                     placeholderText="Date de naissance"
                     maxDate={nineteenYearsAgo } 
-                    
+                    customInput={<input readOnly onKeyDown={(e) => e.preventDefault()} className="border p-2 w-full rounded bg-white text-black" />}
+                    isClearable={false}
                   />
             
                 </>

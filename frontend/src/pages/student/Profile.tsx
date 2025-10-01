@@ -2,14 +2,15 @@ import StudentLayout from "../../layouts/StudentLayout";
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import DatePicker from "react-datepicker";
-import { getStudentByEmail , updateStudent} from "../../services/studentService"; //  service
+import { getStudentByEmail, updateStudent } from "../../services/studentService";
 import type { Student } from "../../services/studentService";
 import { changeUserPassword } from "../../services/usersService";
-import { useNavigate } from "react-router-dom"; // 
-
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-    console.log("Profile monté !");
+  console.log("Profile monté !");
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -21,43 +22,44 @@ const Profile = () => {
     old_password: "",
     new_password: "",
   });
-  const navigate = useNavigate();
+
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Limitation de date : âge minimum 19 ans
+  const maxBirthDate = new Date();
+  maxBirthDate.setFullYear(maxBirthDate.getFullYear() - 19);
+
   useEffect(() => {
-  const loadStudentData = async () => {
-    try {
-      const user = localStorage.getItem("user"); 
-      if (user)
-      {
-        const parsedUser= JSON.parse(user);
-        const email = parsedUser.email;
-        console.log(email);
+    const loadStudentData = async () => {
+      try {
+        const user = localStorage.getItem("user");
+        if (user) {
+          const parsedUser = JSON.parse(user);
+          const email = parsedUser.email;
+          console.log(email);
 
-      
-       const student: Student = await getStudentByEmail(email);
-      
+          const student: Student = await getStudentByEmail(email);
 
-      setFormData({
-        email: student.email,
-        first_name: student.first_name,
-        last_name: student.last_name,
-        level: student.level,
-        specialty: student.specialty,
-        date_of_birth: student.date_of_birth || "",
-        old_password: "",
-        new_password: "",
-      });}
-      if (!user) return;
-    } catch (error) {
-      console.error("Erreur récupération profil :", error);
-    }
-  };
+          setFormData({
+            email: student.email,
+            first_name: student.first_name,
+            last_name: student.last_name,
+            level: student.level,
+            specialty: student.specialty,
+            date_of_birth: student.date_of_birth || "",
+            old_password: "",
+            new_password: "",
+          });
+        }
+      } catch (error) {
+        console.error("Erreur récupération profil :", error);
+      }
+    };
 
-  loadStudentData();
-}, []);
+    loadStudentData();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -66,47 +68,50 @@ const Profile = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    // 1 — Changer le mot de passe si rempli
-    if (formData.old_password && formData.new_password) {
-      await handleChangePassword();
-    }
+    try {
+      // Formater date correctement même si inchangée
+      const formattedDate = formData.date_of_birth
+        ? new Date(formData.date_of_birth).toISOString().split("T")[0]
+        : "";
 
-    // 2 — Mettre à jour le profil étudiant
-    const student: Student = await getStudentByEmail(formData.email);
+      // 1 — Changer le mot de passe si rempli
+      if (formData.old_password && formData.new_password) {
+        await handleChangePassword();
+      }
+
+      // 2 — Mettre à jour le profil étudiant
+      const student: Student = await getStudentByEmail(formData.email);
       await updateStudent(student.id, {
-      first_name: formData.first_name,
-      last_name: formData.last_name,
-      level: formData.level,
-      specialty: formData.specialty,
-      date_of_birth: formData.date_of_birth,
-    });
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        level: formData.level,
+        specialty: formData.specialty,
+        date_of_birth: formattedDate,
+      });
 
-    alert("Profil mis à jour avec succès !");
-    setFormData({ ...formData, old_password: "", new_password: "" });
-  } catch (error: any) {
-    setErrorMessage(error.message || "Erreur lors de la mise à jour du profil");
-  }
-};
-
-
-
+      alert("Profil mis à jour avec succès !");
+      setFormData({ ...formData, old_password: "", new_password: "" });
+    } catch (error: any) {
+      setErrorMessage(error.message || "Erreur lors de la mise à jour du profil");
+    }
+  };
 
   const handleChangePassword = async () => {
-  try {
-    await changeUserPassword({
-      old_password: formData.old_password,
-      new_password: formData.new_password,
-    });
+    try {
+      await changeUserPassword({
+        old_password: formData.old_password,
+        new_password: formData.new_password,
+      });
 
-    alert("Mot de passe changé avec succès !");
-    setFormData({ ...formData, old_password: "", new_password: "" });
-  } catch (error: any) {
-    setErrorMessage(error.message);
-  }
-};
+      alert("Mot de passe changé avec succès !");
+      setFormData({ ...formData, old_password: "", new_password: "" });
+    } catch (error: any) {
+      setErrorMessage(error.message);
+    }
+  };
+
   return (
     <StudentLayout>
       <h2 className="text-2xl font-bold mb-4">Mon profil</h2>
@@ -183,6 +188,7 @@ const Profile = () => {
             value={formData.first_name}
             onChange={handleChange}
             className="w-full border p-2 rounded"
+            required
           />
         </div>
 
@@ -195,6 +201,7 @@ const Profile = () => {
             value={formData.last_name}
             onChange={handleChange}
             className="w-full border p-2 rounded"
+            required
           />
         </div>
 
@@ -254,6 +261,7 @@ const Profile = () => {
             showMonthDropdown
             showYearDropdown
             dropdownMode="select"
+            maxDate={maxBirthDate} // Limitation ici
           />
         </div>
 
@@ -265,15 +273,12 @@ const Profile = () => {
           Sauvegarder
         </button>
         <button
-        type="button"
-        onClick={() => navigate("/student/dashboard")}
-        className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
-         >
-        Annuler
-       </button>
-
-
-
+          type="button"
+          onClick={() => navigate("/student/dashboard")}
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+        >
+          Annuler
+        </button>
       </form>
     </StudentLayout>
   );

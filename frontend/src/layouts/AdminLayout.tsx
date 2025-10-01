@@ -11,6 +11,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const handleLogout = () => {
     // ✅ Supprimer le token du stockage local
     localStorage.removeItem("token");
+     localStorage.removeItem("email");
+      localStorage.removeItem("user");
 
     // 🔄 Rediriger vers la page de login
     navigate("/login");

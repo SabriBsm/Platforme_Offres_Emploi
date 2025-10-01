@@ -23,8 +23,8 @@ const Profile = () => {
 
   const navigate = useNavigate();
 
+  // Charger les données au montage
   useEffect(() => {
-    // Simuler récupération de données depuis localStorage
     const company = localStorage.getItem("company");
     const user = localStorage.getItem("user");
 
@@ -49,56 +49,61 @@ const Profile = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrorMessage("");
   };
-  /*
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Données envoyées :", formData);
-    alert("Formulaire soumis. À implémenter côté backend.");
-  };
-  */
 
-//d
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  try {
-    // 1 — Changer le mot de passe si rempli
-    if (formData.old_password && formData.new_password) {
-      await handleChangePassword();
-    }
-
-    // 2 — Mettre à jour le profil étudiant
-    const company: Company = await getCompanyByEmail(formData.email);
-      await updateCompanie(company.id, {
-      name: formData.name,
-      description: formData.description,
-      address: formData.address,
-      website: formData.website,
-    });
-
-    alert("Profil mis à jour avec succès !");
-    setFormData({ ...formData, old_password: "", new_password: "" });
-  } catch (error: any) {
-    setErrorMessage(error.message || "Erreur lors de la mise à jour du profil");
-  }
-};
-//f
-
-
-
-
-
-   const handleChangePassword = async () => {
+  const handleChangePassword = async () => {
     try {
       await changeUserPassword({
         old_password: formData.old_password,
         new_password: formData.new_password,
       });
-  
+
       alert("Mot de passe changé avec succès !");
-      setFormData({ ...formData, old_password: "", new_password: "" });
+      setFormData((prev) => ({ ...prev, old_password: "", new_password: "" }));
     } catch (error: any) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.message || "Erreur lors du changement du mot de passe");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      // 1 — Changer le mot de passe si rempli
+      if (formData.old_password && formData.new_password) {
+        await handleChangePassword();
+      }
+
+      // 2 — Mettre à jour le profil entreprise
+      const company: Company = await getCompanyByEmail(formData.email);
+      await updateCompanie(company.id, {
+        name: formData.name,
+        description: formData.description,
+        address: formData.address,
+        website: formData.website,
+      });
+
+      // 🔹 Mettre à jour localStorage
+      const updatedCompany = {
+        ...company,
+        name: formData.name,
+        description: formData.description,
+        address: formData.address,
+        website: formData.website,
+      };
+      localStorage.setItem("company", JSON.stringify(updatedCompany));
+
+      alert("Profil mis à jour avec succès !");
+      setFormData((prev) => ({
+        ...prev,
+        old_password: "",
+        new_password: "",
+        name: updatedCompany.name,
+        description: updatedCompany.description,
+        address: updatedCompany.address,
+        website: updatedCompany.website,
+      }));
+    } catch (error: any) {
+      setErrorMessage(error.message || "Erreur lors de la mise à jour du profil");
     }
   };
 
@@ -178,6 +183,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             value={formData.name}
             onChange={handleChange}
             className="w-full border p-2 rounded"
+            required
           />
         </div>
 
@@ -233,7 +239,6 @@ const handleSubmit = async (e: React.FormEvent) => {
             Annuler
           </button>
         </div>
-
       </form>
     </CompanyLayout>
   );

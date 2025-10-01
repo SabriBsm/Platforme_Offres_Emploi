@@ -104,7 +104,7 @@ export const getOffersByCompany = async (companyId) => {
     "SELECT * FROM offers WHERE company_id = ?",
     [companyId]
   );
-  console.log(companyId);
+  //console.log(companyId);
   return rows;
 };
 

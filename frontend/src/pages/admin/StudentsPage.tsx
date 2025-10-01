@@ -18,6 +18,8 @@ const StudentsPage = () => {
   const [formData, setFormData] = useState<Partial<Student>>({});
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
+  const [searchQuery, setSearchQuery] = useState(""); // <-- Ajout recherche
+
   // Charger les étudiants
   useEffect(() => {
     fetch("http://localhost:3000/api/students")
@@ -49,15 +51,12 @@ const StudentsPage = () => {
   const handleDelete = async (id: number) => {
     if (confirm("Voulez-vous vraiment supprimer cet étudiant ?")) {
       try {
-      const data = await deleteStudent(id);
-      setStudents(students.filter((s) => s.id !== id));
-      alert("✅ Étudiant supprimé avec succès !");
-
-      }
-      
-      catch  (err) {
-      console.error("Erreur suppression", err);
-      alert("❌ Échec de la suppression");
+        await deleteStudent(id);
+        setStudents(students.filter((s) => s.id !== id));
+        alert("✅ Étudiant supprimé avec succès !");
+      } catch (err) {
+        console.error("Erreur suppression", err);
+        alert("❌ Échec de la suppression");
       }
     }
   };
@@ -74,12 +73,8 @@ const StudentsPage = () => {
     e.preventDefault();
     if (!selectedStudent) return;
     try {
- 
-      const res = await updateStudent(selectedStudent.id,formData);
-      const updated =res;
-    
-      
-      
+      const res = await updateStudent(selectedStudent.id, formData);
+      const updated = res;
 
       setStudents(students.map((s) => (s.id === selectedStudent.id ? updated : s)));
       setActiveTab("list");
@@ -97,10 +92,31 @@ const StudentsPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Filtrer étudiants selon recherche
+  const filteredStudents = students.filter((s) =>
+    `${s.first_name} ${s.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.level.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (usersEmails[s.id] || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <AdminLayout>
       <div className="text-black">
         <h2 className="text-2xl font-bold mb-4">👨‍🎓 Gestion des étudiants</h2>
+
+        {/* Champ recherche */}
+        {activeTab === "list" && (
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="🔍 Rechercher par nom, prénom, niveau ou spécialité..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border p-2 w-full rounded"
+            />
+          </div>
+        )}
 
         {/* Onglets */}
         <div className="flex space-x-4 border-b mb-4">
@@ -137,8 +153,8 @@ const StudentsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {students.length > 0 ? (
-                    students.map((s) => (
+                  {filteredStudents.length > 0 ? (
+                    filteredStudents.map((s) => (
                       <tr key={s.id} className="border-b hover:bg-gray-50">
                         <td className="p-3">{usersEmails[s.id]}</td>
                         <td className="p-3">

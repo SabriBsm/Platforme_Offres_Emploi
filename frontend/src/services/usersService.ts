@@ -15,7 +15,7 @@ export const getUsers = async () => {
 };
 
 
-//create user
+// create user
 export const createUser = async (userData: any) => {
   const res = await fetch(`${API_URL}/users`, {
     method: "POST",
@@ -23,8 +23,14 @@ export const createUser = async (userData: any) => {
     body: JSON.stringify(userData),
   });
 
-  if (!res.ok) throw new Error("Erreur ajout utilisateur");
-  return res.json(); // retourne { success, message, user }
+  const data = await res.json();
+
+  if (!res.ok) {
+    // le backend renvoie { success: false, message: "❌ Cet email existe déjà" }
+    throw new Error(data.message || "Erreur ajout utilisateur");
+  }
+
+  return data; // { success, message, user }
 };
 
 
@@ -35,9 +41,15 @@ export const updateUser = async (id: number, userData: any) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
   });
+   const data = await res.json();
 
-  if (!res.ok) throw new Error("Erreur modification utilisateur");
-  return res.json();
+  if (!res.ok) {
+    // le backend renvoie { success: false, message: "❌ Cet email existe déjà" }
+    throw new Error(data.message || "Erreur modif utilisateur");
+  }
+
+  return data; // { success, message, user }
+  
 };
 
 

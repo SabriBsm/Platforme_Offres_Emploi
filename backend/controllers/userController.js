@@ -8,33 +8,49 @@ import jwt from "jsonwebtoken";
 
 // Créer un utilisateur
 export const createUser = async (req, res) => {
-  const { email, password, role, first_name, last_name, level, specialty, name, description, address, website, date_of_birth } = req.body;
+  const { 
+    email, password, role, 
+    first_name, last_name, level, specialty, 
+    name, description, address, website, date_of_birth 
+  } = req.body;
 
   const connection = await pool.getConnection(); // ⚡ récupérer une connexion
 
   try {
-    
     await connection.beginTransaction(); // 🚀 démarrer la transaction
 
-    // 1. Hash password
+    // 1. Vérifier si email existe déjà
+    const [existing] = await connection.query(
+      "SELECT id FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (existing.length > 0) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "❌ Cet email existe déjà"
+      });
+    }
+
+    // 2. Hash password
     const password_hash = await bcrypt.hash(password, 10);
 
-// 2. Insert dans users avec RETURNING
-const [rows] = await connection.query(
-  "INSERT INTO users (email, password_hash, role) VALUES (?, ?, ?) ",
-  [email, password_hash, role]
-);
+    // 3. Insert dans users
+    const [rows] = await connection.query(
+      "INSERT INTO users (email, password_hash, role) VALUES (?, ?, ?)",
+      [email, password_hash, role]
+    );
 
-const id = rows.insertId; // L'id de user recuperé
-const [users] = await connection.query(
-  "SELECT id, email, role, created_at FROM users WHERE id = ?",
-  [id]
-);
-const user = users[0];
+    const id = rows.insertId; // L'id de user récupéré
 
-    
+    const [users] = await connection.query(
+      "SELECT id, email, role, created_at FROM users WHERE id = ?",
+      [id]
+    );
+    const user = users[0];
 
-    // 3. Insert dans table spécifique
+    // 4. Insert dans table spécifique
     if (role === "student") {
       await connection.query(
         "INSERT INTO students (id, first_name, last_name, level, specialty, date_of_birth) VALUES (?, ?, ?, ?, ?, ?)",
@@ -47,15 +63,13 @@ const user = users[0];
       );
     }
 
-    // 4. Valider la transaction
+    // 5. Valider la transaction
     await connection.commit();
 
     res.status(201).json({
       success: true,
-      message: "Ajout d'utilisateur avec succès ✅",
+      message: "✅ Utilisateur ajouté avec succès",
       user
-
-
     });
 
   } catch (err) {
@@ -73,17 +87,34 @@ const user = users[0];
 export const updateUser = async (req, res) => {
   const { id } = req.params;
   const { role, ...updateData } = req.body;
-  const connection = await pool.getConnection(); // ⚡ récupérer une connexion
-
+  const connection = await pool.getConnection();
 
   try {
-    // Mise à jour de la table users (infos génériques)
+    await connection.beginTransaction();
+
+    // 1. Vérifier si l'email existe déjà pour un autre utilisateur
+    if (updateData.email) {
+      const [existing] = await connection.query(
+        "SELECT id FROM users WHERE email = ? AND id != ?",
+        [updateData.email, id]
+      );
+
+      if (existing.length > 0) {
+        await connection.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "❌ Cet email est déjà utilisé par un autre utilisateur"
+        });
+      }
+    }
+
+    // 2. Mise à jour de la table users (infos génériques)
     await connection.query(
       "UPDATE users SET email = ?, role = ? WHERE id = ?",
       [updateData.email, role, id]
     );
 
-    // Mise à jour spécifique selon le rôle
+    // 3. Mise à jour spécifique selon le rôle
     if (role === "student") {
       await connection.query(
         "UPDATE students SET first_name = ?, last_name = ? WHERE id = ?",
@@ -91,20 +122,25 @@ export const updateUser = async (req, res) => {
       );
     } else if (role === "company") {
       await connection.query(
-        "UPDATE companies SET name = ?, description = ? , address = ? , website = ? WHERE id = ?",
+        "UPDATE companies SET name = ?, description = ?, address = ?, website = ? WHERE id = ?",
         [updateData.name, updateData.description, updateData.address, updateData.website, id]
       );
     }
-   
-    res.json({ 
-    success: true, 
-    message: "Utilisateur mis à jour avec succès",
-    user: { id, ...updateData, role } // ou récupère depuis la DB après update pour avoir les vrais champs
-});
+
+    await connection.commit();
+
+    res.json({
+      success: true,
+      message: "Utilisateur mis à jour avec succès",
+      user: { id, ...updateData, role }
+    });
 
   } catch (err) {
+    await connection.rollback();
     console.error(err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
+  } finally {
+    connection.release();
   }
 };
 
